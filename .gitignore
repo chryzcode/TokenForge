@@ -4,6 +4,8 @@ node_modules/
 # Environment variables
 .env
 .env.*
+app/.env
+app/.env.*
 
 # Hardhat artifacts
 artifacts/
@@ -13,7 +15,7 @@ typechain-types/
 coverage/
 
 # Vite/React build
-frontend/dist/
+app/dist/
 
 # Logs
 npm-debug.log*

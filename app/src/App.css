@@ -63,6 +63,32 @@ body {
   opacity: 0.9;
 }
 
+/* Network Indicator Bar */
+.network-indicator-bar {
+  background: linear-gradient(135deg, var(--warning-color), #d97706);
+  color: white;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  box-shadow: var(--shadow);
+  z-index: 10;
+}
+
+/* Wrong Network Bar */
+.wrong-network-bar {
+  background: linear-gradient(135deg, var(--danger-color), #b91c1c);
+  color: white;
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 0.9rem;
+  font-weight: 600;
+  width: 100%;
+  box-shadow: var(--shadow);
+  z-index: 10;
+}
+
 /* Main Content */
 .main {
   flex: 1;
@@ -184,6 +210,22 @@ body {
 
 .wallet-info strong {
   color: var(--primary-color);
+}
+
+.wallet-info button {
+  background: var(--danger-color);
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 0.5rem;
+  cursor: pointer;
+  transition: background 0.3s;
+  font-weight: 600;
+  margin-top: 1rem;
+}
+
+.wallet-info button:hover {
+  background: #b91c1c;
 }
 
 /* Token Stats */
@@ -352,7 +394,7 @@ body {
 @media (max-width: 768px) {
   .header h1 {
     font-size: 2rem;
-  }
+}
   
   .header p {
     font-size: 1rem;
@@ -360,12 +402,12 @@ body {
   
   .main {
     padding: 1rem;
-  }
+}
   
   .dashboard {
     grid-template-columns: 1fr;
-  }
-  
+}
+
   .form-group {
     gap: 0.75rem;
   }
@@ -383,12 +425,12 @@ body {
   
   .header h1 {
     font-size: 1.75rem;
-  }
-  
-  .card {
+}
+
+.card {
     padding: 1.25rem;
-  }
-  
+}
+
   .stat {
     flex-direction: column;
     align-items: flex-start;

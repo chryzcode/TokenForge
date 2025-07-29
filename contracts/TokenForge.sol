@@ -4,7 +4,7 @@ pragma solidity ^0.8.20;
 import "@openzeppelin/contracts/token/ERC20/ERC20.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Burnable.sol";
 import "@openzeppelin/contracts/token/ERC20/extensions/ERC20Pausable.sol";
-import "@openzeppelin/contracts/access/AccessControl.sol";
+import "@openzeppelin/contracts/access/extensions/AccessControlEnumerable.sol";
 import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
 
 /**
@@ -16,7 +16,7 @@ import "@openzeppelin/contracts/utils/ReentrancyGuard.sol";
  * - Anti-reentrancy protection
  * - Initial supply distribution
  */
-contract TokenForge is ERC20, ERC20Burnable, ERC20Pausable, AccessControl, ReentrancyGuard {
+contract TokenForge is ERC20, ERC20Burnable, ERC20Pausable, AccessControlEnumerable, ReentrancyGuard {
     // Role definitions
     bytes32 public constant PAUSER_ROLE = keccak256("PAUSER_ROLE");
     bytes32 public constant MINTER_ROLE = keccak256("MINTER_ROLE");

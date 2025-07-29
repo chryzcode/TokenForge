@@ -25,7 +25,7 @@ A comprehensive Web3 token project built with modern tools and best practices. T
 - **TypeScript**: Full TypeScript support for type safety
 - **Comprehensive Testing**: 100% test coverage for all functionality
 - **Gas Optimization**: Optimized contract for cost efficiency
-- **Multi-Network Support**: Deploy to Ethereum, Polygon, and testnets
+- **Multi-Network Support**: Deploy to Ethereum and testnets
 - **Contract Verification**: Automated contract verification on block explorers
 
 ## 🛠 Tech Stack
@@ -113,16 +113,6 @@ A comprehensive Web3 token project built with modern tools and best practices. T
 npm run deploy:sepolia
 ```
 
-#### To Polygon Mainnet
-```bash
-npm run deploy:polygon
-```
-
-#### To Polygon Mumbai Testnet
-```bash
-npm run deploy:polygonMumbai
-```
-
 ## 📋 Contract Functions
 
 ### Public Functions
@@ -171,15 +161,12 @@ npm run deploy:polygonMumbai
 ```bash
 # Network RPC URLs
 SEPOLIA_RPC_URL=https://sepolia.infura.io/v3/YOUR_PROJECT_ID
-POLYGON_RPC_URL=https://polygon-rpc.com
-MUMBAI_RPC_URL=https://rpc-mumbai.maticvigil.com
 
 # Deployment
 PRIVATE_KEY=your_private_key_here
 
 # Verification
 ETHERSCAN_API_KEY=your_etherscan_api_key
-POLYGONSCAN_API_KEY=your_polygonscan_api_key
 
 # Gas reporting
 REPORT_GAS=true
@@ -244,8 +231,6 @@ TokenForge/
 
 - **Ethereum Mainnet**: Production deployment
 - **Sepolia Testnet**: Ethereum testnet
-- **Polygon Mainnet**: Low-cost L2 deployment
-- **Polygon Mumbai**: Polygon testnet
 - **Localhost**: Development and testing
 
 ## 🤝 Contributing

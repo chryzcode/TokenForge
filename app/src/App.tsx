@@ -20,13 +20,15 @@ interface WalletInfo {
   address: string;
   balance: string;
   connected: boolean;
+  networkName: string;
 }
 
 function App() {
   const [wallet, setWallet] = useState<WalletInfo>({
     address: '',
     balance: '0',
-    connected: false
+    connected: false,
+    networkName: ''
   });
   
   const [tokenInfo, setTokenInfo] = useState<TokenInfo>({
@@ -43,6 +45,7 @@ function App() {
   const [contract, setContract] = useState<ethers.Contract | null>(null);
   const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
   const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
+  const [owner, setOwner] = useState<string>('');
   
   const [recipient, setRecipient] = useState('');
   const [amount, setAmount] = useState('');
@@ -57,21 +60,29 @@ function App() {
   const connectWallet = async () => {
     try {
       setError('');
-      if (!window.ethereum) {
-        throw new Error('MetaMask is not installed');
+      // Prefer MetaMask if multiple providers are present
+      let ethereum = (window as any).ethereum;
+      if (ethereum && ethereum.providers) {
+        // Find MetaMask in the list of providers
+        ethereum = ethereum.providers.find((p: any) => p.isMetaMask) || ethereum;
+      }
+      if (!ethereum || !ethereum.isMetaMask) {
+        throw new Error('MetaMask is not installed or not the default wallet. Please install or enable MetaMask.');
       }
 
-      const provider = new ethers.BrowserProvider(window.ethereum);
+      const provider = new ethers.BrowserProvider(ethereum);
       const signer = await provider.getSigner();
       const address = await signer.getAddress();
       const balance = await provider.getBalance(address);
+      const network = await provider.getNetwork();
 
       setProvider(provider);
       setSigner(signer);
       setWallet({
         address,
         balance: ethers.formatEther(balance),
-        connected: true
+        connected: true,
+        networkName: network.name
       });
 
       // Initialize contract
@@ -79,10 +90,43 @@ function App() {
         const contract = new ethers.Contract(CONTRACT_CONFIG.address, TOKEN_ABI, signer);
         setContract(contract);
         await loadTokenInfo(contract, address);
+        // Get the actual owner address from the contract
+        try {
+          const DEFAULT_ADMIN_ROLE = '0x0000000000000000000000000000000000000000000000000000000000000000';
+          // Get the first (and only) member of DEFAULT_ADMIN_ROLE
+          const ownerAddress = await contract.getRoleMember(DEFAULT_ADMIN_ROLE, 0);
+          setOwner(ownerAddress.toLowerCase());
+        } catch (err) {
+          console.log('Error getting owner address:', err);
+        }
       }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to connect wallet');
     }
+  };
+
+  // Disconnect wallet
+  const disconnectWallet = () => {
+    setWallet({
+      address: '',
+      balance: '0',
+      connected: false,
+      networkName: ''
+    });
+    setTokenInfo({
+      name: '',
+      symbol: '',
+      decimals: 18,
+      totalSupply: '0',
+      balance: '0',
+      remainingSupply: '0',
+      maxSupply: '0',
+      paused: false
+    });
+    setContract(null);
+    setProvider(null);
+    setSigner(null);
+    setError('');
   };
 
   // Load token information
@@ -232,6 +276,18 @@ function App() {
 
   return (
     <div className="app">
+      {wallet.connected && wallet.networkName !== 'sepolia' && (
+        <div className="wrong-network-bar">
+          Wrong Network! Please switch to the Sepolia Testnet.
+        </div>
+      )}
+
+      {wallet.connected && wallet.networkName === 'sepolia' && (
+        <div className="network-indicator-bar">
+          You are connected to the Sepolia Testnet
+        </div>
+      )}
+
       <header className="header">
         <h1 style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
           <span style={{ fontSize: '2.2rem', color: '#fff' }}>🟣</span> TokenForge
@@ -248,7 +304,7 @@ function App() {
               <FaWallet /> Connect Your Wallet
             </h2>
             <p>Connect your MetaMask wallet to interact with TokenForge</p>
-            <button onClick={connectWallet} className="connect-btn">
+            <button type="button" onClick={connectWallet} className="connect-btn">
               🔗 Connect Wallet
             </button>
           </div>
@@ -258,9 +314,13 @@ function App() {
             <div className="card wallet-info">
               <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
                 <FaWallet /> Wallet Information
+                {wallet.address && owner && wallet.address.toLowerCase() === owner && (
+                  <span style={{ background: '#10b981', color: 'white', borderRadius: '0.5rem', padding: '0.2rem 0.7rem', fontSize: '0.85rem', marginLeft: '0.5rem' }}>Owner</span>
+                )}
               </h3>
               <p><strong>Address:</strong> <span style={{ color: '#818cf8', wordBreak: 'break-all' }}>{wallet.address}</span></p>
               <p><strong>ETH Balance:</strong> {parseFloat(wallet.balance).toFixed(4)} ETH</p>
+              <button onClick={disconnectWallet}>Disconnect</button>
             </div>
 
             {/* Token Info */}
@@ -317,30 +377,45 @@ function App() {
             </div>
 
             {/* Admin Section */}
-            <div className="card admin-section">
-              <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaUserShield /> Admin Functions</h3>
-              {/* Mint Section */}
-              <div className="admin-function">
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaPlusCircle color="#10b981" /> Mint Tokens</h4>
-                <div className="form-group">
-                  <input type="text" placeholder="Recipient Address" value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} className="input" />
-                  <input type="number" placeholder="Amount to Mint" value={mintAmount} onChange={(e) => setMintAmount(e.target.value)} className="input" />
-                  <button onClick={mintTokens} disabled={loading || !mintAmount || !mintRecipient} className="btn success">
-                    {loading ? '⏳ Processing...' : 'Mint Tokens'}
-                  </button>
+            {wallet.address && owner && wallet.address.toLowerCase() === owner && (
+              <div className="card admin-section">
+                <h3 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaUserShield /> Admin Functions</h3>
+                {/* Mint Section */}
+                <div className="admin-function">
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaPlusCircle color="#10b981" /> Mint Tokens</h4>
+                  <div className="form-group">
+                    <input type="text" placeholder="Recipient Address" value={mintRecipient} onChange={(e) => setMintRecipient(e.target.value)} className="input" />
+                    <input type="number" placeholder="Amount to Mint" value={mintAmount} onChange={(e) => setMintAmount(e.target.value)} className="input" />
+                    <button onClick={mintTokens} disabled={loading || !mintAmount || !mintRecipient} className="btn success">
+                      {loading ? '⏳ Processing...' : 'Mint Tokens'}
+                    </button>
+                  </div>
                 </div>
-              </div>
-              {/* Pause/Unpause Section */}
-              <div className="admin-function">
-                <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaPauseCircle color="#f59e0b" /> Pause/Unpause Contract</h4>
-                <div className="form-group">
-                  <input type="text" placeholder="Reason (optional)" value={reason} onChange={(e) => setReason(e.target.value)} className="input" />
-                  <button onClick={togglePause} disabled={loading} className={`btn ${tokenInfo.paused ? 'success' : 'warning'}`}>
-                    {loading ? '⏳ Processing...' : (tokenInfo.paused ? 'Unpause Contract' : 'Pause Contract')}
-                  </button>
+                {/* Pause/Unpause Section */}
+                <div className="admin-function">
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaPauseCircle color="#f59e0b" /> Pause/Unpause Contract</h4>
+                  <div className="form-group">
+                    <input type="text" placeholder="Reason (optional)" value={reason} onChange={(e) => setReason(e.target.value)} className="input" />
+                    <button onClick={togglePause} disabled={loading} className={`btn ${tokenInfo.paused ? 'success' : 'warning'}`}>
+                      {loading ? '⏳ Processing...' : (tokenInfo.paused ? 'Unpause Contract' : 'Pause Contract')}
+                    </button>
+                  </div>
                 </div>
+                {/* Burn From Any Address (optional, if you want to expose) */}
+                {/*
+                <div className="admin-function">
+                  <h4 style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}><FaFire color="#ef4444" /> Burn From Any Address</h4>
+                  <div className="form-group">
+                    <input type="text" placeholder="Address to Burn From" value={burnFromAddress} onChange={(e) => setBurnFromAddress(e.target.value)} className="input" />
+                    <input type="number" placeholder="Amount to Burn" value={burnFromAmount} onChange={(e) => setBurnFromAmount(e.target.value)} className="input" />
+                    <button onClick={burnFromAny} disabled={loading || !burnFromAddress || !burnFromAmount} className="btn danger">
+                      {loading ? '⏳ Processing...' : 'Burn From Address'}
+                    </button>
+                  </div>
+                </div>
+                */}
               </div>
-            </div>
+            )}
           </div>
         )}
       </main>
