@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ethers } from 'ethers'
-import { CONTRACT_CONFIG, TOKEN_ABI, NETWORKS } from './config/contracts'
+import { CONTRACT_CONFIG, TOKEN_ABI } from './config/contracts'
 import './App.css'
 
 import { FaWallet, FaCoins, FaCheckCircle, FaPauseCircle, FaUserShield, FaArrowRight, FaFire, FaPlusCircle } from 'react-icons/fa';
@@ -43,8 +43,6 @@ function App() {
   });
 
   const [contract, setContract] = useState<ethers.Contract | null>(null);
-  const [provider, setProvider] = useState<ethers.BrowserProvider | null>(null);
-  const [signer, setSigner] = useState<ethers.JsonRpcSigner | null>(null);
   const [owner, setOwner] = useState<string>('');
   
   const [recipient, setRecipient] = useState('');
@@ -75,9 +73,6 @@ function App() {
       const address = await signer.getAddress();
       const balance = await provider.getBalance(address);
       const network = await provider.getNetwork();
-
-      setProvider(provider);
-      setSigner(signer);
       setWallet({
         address,
         balance: ethers.formatEther(balance),
@@ -124,8 +119,6 @@ function App() {
       paused: false
     });
     setContract(null);
-    setProvider(null);
-    setSigner(null);
     setError('');
   };
 
@@ -263,12 +256,12 @@ function App() {
 
   // Auto-connect on page load
   useEffect(() => {
-    if (window.ethereum) {
-      window.ethereum.on('accountsChanged', () => {
+    if ((window as any).ethereum) {
+      (window as any).ethereum.on('accountsChanged', () => {
         window.location.reload();
       });
       
-      window.ethereum.on('chainChanged', () => {
+      (window as any).ethereum.on('chainChanged', () => {
         window.location.reload();
       });
     }
