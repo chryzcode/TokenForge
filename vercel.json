@@ -1,0 +1,6 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "app/dist",
+  "installCommand": "npm install && npm run install",
+  "framework": "vite"
+} 
