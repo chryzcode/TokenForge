@@ -10,9 +10,9 @@
     "deploy:sepolia": "hardhat run scripts/deploy.ts --network sepolia",
     "node": "hardhat node",
     "verify": "hardhat verify",
-    "start": "cp .env app/.env && cd app && npm run dev",
-    "build": "cp .env app/.env && cd app && npm run build",
-    "preview": "cp .env app/.env && cd app && npm run preview",
+    "start": "cp .env app/.env 2>/dev/null || echo 'No .env file found, using Vercel environment variables' && cd app && npm run dev",
+    "build": "cp .env app/.env 2>/dev/null || echo 'No .env file found, using Vercel environment variables' && cd app && npm run build",
+    "preview": "cp .env app/.env 2>/dev/null || echo 'No .env file found, using Vercel environment variables' && cd app && npm run preview",
     "install": "cd app && npm install"
   },
   "keywords": ["web3", "token", "ethereum", "solidity", "react", "vite"],

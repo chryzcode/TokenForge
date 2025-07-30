@@ -1,0 +1,15 @@
+{
+  "buildCommand": "npm run build",
+  "outputDirectory": "app/dist",
+  "installCommand": "npm install && npm run install",
+  "framework": "vite",
+  "functions": {
+    "app/dist/**/*.js": {
+      "runtime": "nodejs18.x"
+    }
+  },
+  "env": {
+    "VITE_CONTRACT_ADDRESS": "@vite_contract_address",
+    "VITE_NETWORK": "@vite_network"
+  }
+} 

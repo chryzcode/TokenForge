@@ -1,0 +1,37 @@
+# Hardhat files
+artifacts/
+cache/
+typechain-types/
+coverage/
+coverage.json
+
+# Environment files (use Vercel env vars instead)
+.env
+.env.local
+.env.*.local
+
+# Node modules (will be installed by Vercel)
+node_modules/
+
+# Logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# IDE files
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Test files
+test/
+scripts/
+
+# Hardhat config (not needed for frontend)
+hardhat.config.ts 
