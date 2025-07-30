@@ -297,6 +297,17 @@ function App() {
         </p>
       </header>
 
+      {/* Sepolia Testnet Notice */}
+      <div className="sepolia-notice">
+        <div className="notice-content">
+          <span style={{ fontSize: '1.2rem', marginRight: '0.5rem' }}>🔗</span>
+          <strong>TokenForge is currently available on Sepolia Testnet only</strong>
+          <span style={{ marginLeft: '0.5rem', opacity: 0.8 }}>
+            - Connect your wallet to Sepolia testnet to interact with the token
+          </span>
+        </div>
+      </div>
+
       <main className="main">
         {!wallet.connected ? (
           <div className="connect-section card">
